@@ -12,23 +12,18 @@ void main() {
 }
 
 // class MyGame extends FlameGame with KeyboardEvents {
-class MyGame extends FlameGame with HasKeyboardHandlerComponents {
-  late Player player;
+class MyGame extends FlameGame
+    with HasKeyboardHandlerComponents, HasCollisionDetection {
   late Level level;
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
     camera.viewfinder.anchor = Anchor.topLeft;
-    player = Player(
-      size: Vector2.all(64),
-      position: Vector2(200, 200),
-    );
 
     level = Level();
 
     add(level);
-    add(player);
   }
 
   @override

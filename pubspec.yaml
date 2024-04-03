@@ -60,6 +60,7 @@ flutter:
     - assets/images/game/character/player/down/
     - assets/images/game/character/player/down_idle/
     - assets/images/game/environment/
+    - assets/images/game/environment/water/
     - assets/images/game/objects/
     - assets/tiles/map.tmx
     - assets/tiles/Tilesets/

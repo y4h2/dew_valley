@@ -17,7 +17,7 @@ enum PlayerState {
 }
 
 class Player extends SpriteAnimationComponent
-    with HasGameRef<DewValley>, KeyboardHandler {
+    with HasGameRef<DewValley>, KeyboardHandler, CollisionCallbacks {
   Player({required Vector2 position, required Vector2 size})
       : super(
           size: size,
@@ -36,8 +36,8 @@ class Player extends SpriteAnimationComponent
   late SpriteAnimation playerDownAnimation;
   late SpriteAnimation playerDownIdleAnimation;
   bool isMoving = false;
-
-  Vector2 _velocity = Vector2.zero();
+  Vector2 direction = Vector2.zero();
+  double velocity = 200.0;
 
   @override
   Future<void> onLoad() async {
@@ -78,45 +78,68 @@ class Player extends SpriteAnimationComponent
   ) {
     if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
       current = PlayerState.left;
-      isMoving = true;
-      return true;
+      direction.x -= 1;
     } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
       current = PlayerState.right;
-      isMoving = true;
-      return true;
-    } else if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
-      current = PlayerState.up;
-      isMoving = true;
-      return true;
-    } else if (keysPressed.contains(LogicalKeyboardKey.arrowDown)) {
-      current = PlayerState.down;
-      isMoving = true;
-      return true;
+      direction.x += 1;
+    } else {
+      direction.x = 0;
     }
 
-    isMoving = false;
-    switch (current) {
-      case PlayerState.left:
-        current = PlayerState.leftIdle;
-        break;
-      case PlayerState.right:
-        current = PlayerState.rightIdle;
-        break;
-      case PlayerState.up:
-        current = PlayerState.upIdle;
-        break;
-      case PlayerState.down:
-        current = PlayerState.downIdle;
-        break;
-      default:
-        break;
+    if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
+      current = PlayerState.up;
+      direction.y -= 1;
+    } else if (keysPressed.contains(LogicalKeyboardKey.arrowDown)) {
+      current = PlayerState.down;
+      direction.y += 1;
+    } else {
+      direction.y = 0;
     }
+
+    _updateStatus();
     return true;
+  }
+
+  void _updateStatus() {
+    if (!_isMoving()) {
+      switch (current) {
+        case PlayerState.left:
+          current = PlayerState.leftIdle;
+          break;
+        case PlayerState.right:
+          current = PlayerState.rightIdle;
+          break;
+        case PlayerState.up:
+          current = PlayerState.upIdle;
+          break;
+        case PlayerState.down:
+          current = PlayerState.downIdle;
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   @override
   void update(double dt) {
+    _move(dt);
     super.update(dt);
+    _updateAnimation();
+  }
+
+  bool _isMoving() {
+    return direction.x.abs() + direction.y.abs() > 0;
+  }
+
+  void _move(double dt) {
+    if (_isMoving()) {
+      position += direction.normalized() * velocity * dt;
+      // position += direction.normalized() * velocity;
+    }
+  }
+
+  void _updateAnimation() {
     switch (current) {
       case PlayerState.left:
         animation = playerLeftAnimation;
