@@ -5,8 +5,9 @@ import 'package:dew_valley/src/components/Water.dart';
 import 'package:dew_valley/src/components/Player.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:dew_valley/src/DewValley.dart';
 
-class Level extends Component {
+class Level extends Component with HasGameRef<DewValley> {
   Level() : super();
 
   double elementWidth = 64;
@@ -15,6 +16,7 @@ class Level extends Component {
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
+
     final level = await TiledComponent.load(
         "map.tmx", Vector2(elementWidth, elementHeight));
 
@@ -48,6 +50,7 @@ class Level extends Component {
       size: Vector2.all(128),
       position: Vector2(200, 200),
     );
-    add(player);
+    await add(player);
+    game.camera.follow(player);
   }
 }

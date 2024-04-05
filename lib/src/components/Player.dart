@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'dart:async';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
 
 enum PlayerState {
@@ -38,6 +39,9 @@ class Player extends SpriteAnimationComponent
   bool isMoving = false;
   Vector2 direction = Vector2.zero();
   double velocity = 200.0;
+  late ShapeHitbox hitbox;
+  bool collide = false;
+  Vector2 collideDirection = Vector2.zero();
 
   @override
   Future<void> onLoad() async {
@@ -61,6 +65,8 @@ class Player extends SpriteAnimationComponent
         await loadPlayerAnimation([0, 1], 'down_idle', idleStepTime);
 
     animation = playerDownAnimation;
+    hitbox = RectangleHitbox();
+    add(hitbox);
   }
 
   Future<SpriteAnimation> loadPlayerAnimation(
@@ -78,26 +84,26 @@ class Player extends SpriteAnimationComponent
   ) {
     if (keysPressed.contains(LogicalKeyboardKey.arrowLeft)) {
       current = PlayerState.left;
-      direction.x -= 1;
+      direction.x = -1;
     } else if (keysPressed.contains(LogicalKeyboardKey.arrowRight)) {
       current = PlayerState.right;
-      direction.x += 1;
+      direction.x = 1;
     } else {
       direction.x = 0;
     }
 
     if (keysPressed.contains(LogicalKeyboardKey.arrowUp)) {
       current = PlayerState.up;
-      direction.y -= 1;
+      direction.y = -1;
     } else if (keysPressed.contains(LogicalKeyboardKey.arrowDown)) {
       current = PlayerState.down;
-      direction.y += 1;
+      direction.y = 1;
     } else {
       direction.y = 0;
     }
 
     _updateStatus();
-    return true;
+    return false;
   }
 
   void _updateStatus() {
@@ -129,14 +135,23 @@ class Player extends SpriteAnimationComponent
   }
 
   bool _isMoving() {
-    return direction.x.abs() + direction.y.abs() > 0;
+    return (direction.x.abs() + direction.y.abs() > 0);
+  }
+
+  bool _isCollide() {
+    return collide &&
+        ((collideDirection.x == direction.x && direction.x != 0) ||
+            (collideDirection.y == direction.y && direction.y != 0));
   }
 
   void _move(double dt) {
-    if (_isMoving()) {
+    if (_isMoving() && !_isCollide()) {
       position += direction.normalized() * velocity * dt;
       // position += direction.normalized() * velocity;
     }
+    // print(collide);
+    // print(collideDirection);
+    // print(direction);
   }
 
   void _updateAnimation() {
@@ -166,5 +181,22 @@ class Player extends SpriteAnimationComponent
         animation = playerDownIdleAnimation;
         break;
     }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    if (!collide) {
+      collide = true;
+      collideDirection.x = direction.x;
+      collideDirection.y = direction.y;
+    }
+  }
+
+  @override
+  void onCollisionEnd(PositionComponent other) {
+    super.onCollisionEnd(other);
+    collideDirection = Vector2.zero();
+    collide = false;
   }
 }

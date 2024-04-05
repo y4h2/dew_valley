@@ -1,51 +1,33 @@
+import 'package:dew_valley/src/components/Player.dart';
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:dew_valley/src/components/Level.dart';
 
-class DewValley extends FlameGame {
+class DewValley extends FlameGame
+    with HasKeyboardHandlerComponents, HasCollisionDetection {
   DewValley() : super(camera: CameraComponent());
   static int getPlatformVersion() {
     return 0;
   }
 
-  Future<SpriteAnimation> loadPlayerAnimation(
-      List<int> indices, String folder, double stepTime) async {
-    return SpriteAnimation.spriteList(
-        await Future.wait(indices
-            .map((i) => Sprite.load('game/character/player/$folder/$i.png'))),
-        stepTime: stepTime);
-  }
+  late Level level;
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    camera.viewfinder.anchor = Anchor.topLeft;
+    debugMode = true;
 
-    const stepTime = 0.01;
-    final playerLeftAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'left', stepTime);
-    final playerLeftIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'left_idle', stepTime);
-    final playerRightAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'right', stepTime);
-    final playerRightIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'right_idle', stepTime);
-    final playerUpAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'up', stepTime);
-    final playerUpIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'up_idle', stepTime);
-    final playerDownAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'down', stepTime);
-    final playerDownIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'down_idle', stepTime);
+    level = Level();
 
-    final player = SpriteAnimationComponent(
-      animation: playerLeftAnimation,
-      position: Vector2.all(200),
-      size: Vector2.all(300),
-    );
+    world = World(children: [
+      level,
+    ]);
 
-    add(player);
+    await add(world);
 
-    print("test");
+    camera = CameraComponent.withFixedResolution(
+        width: 1280 / 2, height: 370, world: world);
+    await add(camera);
   }
 }

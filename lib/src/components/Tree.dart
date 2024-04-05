@@ -30,6 +30,7 @@ class Tree extends SpriteComponent with CollisionCallbacks {
   });
 
   TreeSize treeSize;
+  late ShapeHitbox hitbox;
 
   @override
   FutureOr<void> onLoad() async {
@@ -44,5 +45,7 @@ class Tree extends SpriteComponent with CollisionCallbacks {
     } else {
       throw 'Unknown tree size: $treeSize';
     }
+    hitbox = RectangleHitbox();
+    add(hitbox);
   }
 }
