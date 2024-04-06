@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:dew_valley/src/DewValley.dart';
+import 'package:dew_valley/src/settings.dart';
 import 'package:flame/components.dart';
 
 class Water extends SpriteAnimationComponent with HasGameRef<DewValley> {
@@ -10,7 +11,7 @@ class Water extends SpriteAnimationComponent with HasGameRef<DewValley> {
     super.scale,
     super.angle,
     super.anchor,
-  });
+  }) : super(priority: layerPriority['water']);
 
   @override
   FutureOr<void> onLoad() async {

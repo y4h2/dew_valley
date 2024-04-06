@@ -5,6 +5,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
+import 'package:dew_valley/src/utils/utils.dart' as utils;
 
 enum PlayerState {
   left,
@@ -48,34 +49,33 @@ class Player extends SpriteAnimationComponent
     await super.onLoad();
     const stepTime = 0.1;
     const idleStepTime = 0.3;
-    playerLeftAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'left', stepTime);
-    playerLeftIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'left_idle', idleStepTime);
-    playerRightAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'right', stepTime);
-    playerRightIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'right_idle', idleStepTime);
-    playerUpAnimation = await loadPlayerAnimation([0, 1, 2, 3], 'up', stepTime);
-    playerUpIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'up_idle', idleStepTime);
-    playerDownAnimation =
-        await loadPlayerAnimation([0, 1, 2, 3], 'down', stepTime);
-    playerDownIdleAnimation =
-        await loadPlayerAnimation([0, 1], 'down_idle', idleStepTime);
+    playerLeftAnimation = await utils.loadAnimationInFolder(
+        [0, 1, 2, 3], 'game/character/player/left', stepTime);
+    playerLeftIdleAnimation = await utils.loadAnimationInFolder(
+        [0, 1], 'game/character/player/left_idle', idleStepTime);
+    playerRightAnimation = await utils.loadAnimationInFolder(
+        [0, 1, 2, 3], 'game/character/player/right', stepTime);
+    playerRightIdleAnimation = await utils.loadAnimationInFolder(
+        [0, 1], 'game/character/player/right_idle', idleStepTime);
+    playerUpAnimation = await utils.loadAnimationInFolder(
+        [0, 1, 2, 3], 'game/character/player/up', stepTime);
+    playerUpIdleAnimation = await utils.loadAnimationInFolder(
+        [0, 1], 'game/character/player/up_idle', idleStepTime);
+    playerDownAnimation = await utils.loadAnimationInFolder(
+        [0, 1, 2, 3], 'game/character/player/down', stepTime);
+    playerDownIdleAnimation = await utils.loadAnimationInFolder(
+        [0, 1], 'game/character/player/down_idle', idleStepTime);
 
     animation = playerDownAnimation;
     hitbox = RectangleHitbox();
     add(hitbox);
   }
 
-  Future<SpriteAnimation> loadPlayerAnimation(
-      List<int> indices, String folder, double stepTime) async {
-    return SpriteAnimation.spriteList(
-        await Future.wait(indices
-            .map((i) => Sprite.load('game/character/player/$folder/$i.png'))),
-        stepTime: stepTime);
-  }
+  // Future<SpriteAnimation> loadPlayerAnimation(
+  //     List<int> indices, String folder, double stepTime) async {
+  //   return utils.loadAnimationInFolder(
+  //       indices, 'game/character/player/$folder', stepTime);
+  // }
 
   @override
   bool onKeyEvent(

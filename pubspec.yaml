@@ -61,6 +61,10 @@ flutter:
     - assets/images/game/character/player/down_idle/
     - assets/images/game/environment/
     - assets/images/game/environment/water/
+    - assets/images/game/environment/soil/
+    - assets/images/game/environment/soil_water/
+    - assets/images/game/environment/rain/drops/
+    - assets/images/game/environment/rain/floor/
     - assets/images/game/objects/
     - assets/tiles/map.tmx
     - assets/tiles/Tilesets/

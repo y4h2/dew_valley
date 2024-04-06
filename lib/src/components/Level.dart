@@ -1,14 +1,16 @@
 import 'dart:async';
 
+import 'package:dew_valley/src/components/Rain.dart';
 import 'package:dew_valley/src/components/Tree.dart';
 import 'package:dew_valley/src/components/Water.dart';
 import 'package:dew_valley/src/components/Player.dart';
+import 'package:dew_valley/src/settings.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 import 'package:dew_valley/src/DewValley.dart';
 
 class Level extends Component with HasGameRef<DewValley> {
-  Level() : super();
+  Level() : super(priority: layerPriority['ground']);
 
   double elementWidth = 64;
   double elementHeight = 64;
@@ -45,6 +47,8 @@ class Level extends Component with HasGameRef<DewValley> {
         treeSize: TreeSize.toEnum(object.name),
       ));
     }
+
+    await add(Rain());
 
     Player player = Player(
       size: Vector2.all(128),

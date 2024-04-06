@@ -1,4 +1,5 @@
 import 'package:dew_valley/src/components/Player.dart';
+import 'package:dew_valley/src/components/Rain.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -16,7 +17,7 @@ class DewValley extends FlameGame
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    debugMode = true;
+    // debugMode = true;
 
     level = Level();
 
@@ -27,7 +28,7 @@ class DewValley extends FlameGame
     await add(world);
 
     camera = CameraComponent.withFixedResolution(
-        width: 1280 / 2, height: 370, world: world);
+        width: 1280, height: 1280, world: world);
     await add(camera);
   }
 }
