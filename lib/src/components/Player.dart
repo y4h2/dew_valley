@@ -129,7 +129,7 @@ class Player extends SpriteAnimationComponent
     }
 
     animation = animationMap['down_idle'];
-    hitbox = RectangleHitbox();
+    hitbox = RectangleHitbox(size: size / 2, position: size / 4);
     add(hitbox);
   }
 

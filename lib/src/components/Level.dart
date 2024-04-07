@@ -1,9 +1,11 @@
 import 'dart:async';
 
+import 'package:dew_valley/src/components/Obstacle.dart';
 import 'package:dew_valley/src/components/Rain.dart';
 import 'package:dew_valley/src/components/Tree.dart';
 import 'package:dew_valley/src/components/Water.dart';
 import 'package:dew_valley/src/components/Player.dart';
+import 'package:dew_valley/src/components/SunFlower.dart';
 import 'package:dew_valley/src/settings.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -56,6 +58,29 @@ class Level extends Component with HasGameRef<DewValley> {
     );
     await add(player);
     game.camera.follow(player);
+
+    // final decorationLayer = tileMap.getLayer<ObjectGroup>('Decoration');
+    // for (final object in decorationLayer!.objects) {
+    //   add(SunFlower(
+    //     position: Vector2(object.x, object.y - object.height),
+    //     size: Vector2(object.width, object.height),
+    //   ));
+    // }
+
+    tileMap.renderableLayers;
+
+    final obstacleLayer = tileMap.getLayer<TileLayer>('Collision');
+    final obstacleTileData = obstacleLayer!.tileData;
+    for (int i = 0; i < obstacleTileData!.length; i++) {
+      for (int j = 0; j < obstacleTileData[i].length; j++) {
+        if (obstacleTileData[i][j].tile != 0) {
+          add(Obstacle(
+            position: Vector2(j * elementWidth, i * elementHeight),
+            size: Vector2(elementWidth, elementHeight),
+          ));
+        }
+      }
+    }
 
     game.overlays.add("tooltip");
   }

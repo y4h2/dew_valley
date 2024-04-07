@@ -19,7 +19,7 @@ class DewValley extends FlameGame
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    // debugMode = true;
+    debugMode = true;
 
     level = Level();
     gameManager = GameManager();

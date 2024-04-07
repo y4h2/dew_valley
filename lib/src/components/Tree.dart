@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:dew_valley/src/settings.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 
 enum TreeSize {
   small,
   medium,
-  unknown,
   ;
 
   static final _map = <String, TreeSize>{
@@ -15,7 +16,7 @@ enum TreeSize {
   };
 
   static TreeSize toEnum(String value) {
-    return _map[value.toLowerCase()] ?? TreeSize.unknown;
+    return _map[value.toLowerCase()]!;
   }
 }
 
@@ -31,6 +32,9 @@ class Tree extends SpriteComponent with CollisionCallbacks {
 
   TreeSize treeSize;
   late ShapeHitbox hitbox;
+  int health = 5;
+  bool alive = true;
+  List<Apple> apples = [];
 
   @override
   FutureOr<void> onLoad() async {
@@ -47,5 +51,49 @@ class Tree extends SpriteComponent with CollisionCallbacks {
     }
     hitbox = RectangleHitbox();
     add(hitbox);
+
+    for (int i = 0; i < applePositions[treeSize.name]!.length; i++) {
+      final applePosition = applePositions[treeSize.name]![i];
+      apples.add(Apple(
+          position: Vector2(
+              applePosition.$1.toDouble(), applePosition.$2.toDouble())));
+    }
+
+    for (final apple in apples) {
+      add(apple);
+    }
+  }
+
+  void damage() {
+    health -= 1;
+
+    var appleIndex = Random().nextInt(apples.length);
+    apples.elementAt(appleIndex).kill();
+    apples.removeAt(appleIndex);
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (alive) {
+      if (health <= 0) {
+        alive = false;
+        removeFromParent();
+      }
+    }
+  }
+}
+
+class Apple extends SpriteComponent {
+  Apple({super.position}) : super();
+
+  @override
+  FutureOr<void> onLoad() async {
+    super.onLoad();
+    sprite = await Sprite.load('game/fruit/apple.png');
+  }
+
+  void kill() {
+    removeFromParent();
   }
 }
