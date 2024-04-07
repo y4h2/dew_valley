@@ -6,6 +6,9 @@ import 'package:dew_valley/src/components/Player.dart';
 import 'package:dew_valley/src/settings.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
+import 'package:flame/particles.dart';
+import 'package:flutter/material.dart';
 
 enum TreeSize {
   small,
@@ -22,6 +25,8 @@ enum TreeSize {
   }
 }
 
+double killDelay = 0.5;
+
 class Tree extends SpriteComponent with CollisionCallbacks {
   Tree({
     required Vector2 super.position,
@@ -33,6 +38,7 @@ class Tree extends SpriteComponent with CollisionCallbacks {
   late ShapeHitbox hitbox;
   List<Apple> apples = [];
   bool isAlive = true;
+  int health = 7;
 
   @override
   FutureOr<void> onLoad() async {
@@ -65,9 +71,12 @@ class Tree extends SpriteComponent with CollisionCallbacks {
   }
 
   void damage() {
-    var appleIndex = Random().nextInt(apples.length);
-    apples.elementAt(appleIndex).kill();
-    apples.removeAt(appleIndex);
+    health -= 1;
+    if (apples.isNotEmpty) {
+      var appleIndex = Random().nextInt(apples.length);
+      apples.elementAt(appleIndex).kill();
+      apples.removeAt(appleIndex);
+    }
   }
 
   @override
@@ -79,17 +88,20 @@ class Tree extends SpriteComponent with CollisionCallbacks {
   }
 
   void checkDeath() async {
-    if (apples.isNotEmpty) {
+    if (health > 0) {
       return;
     }
     isAlive = false;
 
-    parent!.add(Strump(
-      position: Vector2(position.x + width / 2, position.y + height),
-      treeSize: treeSize,
-      anchor: Anchor.bottomCenter,
-    ));
-    removeFromParent();
+    add(ColorEffect(Colors.white, EffectController(duration: killDelay),
+        opacityTo: 1, onComplete: () {
+      parent!.add(Strump(
+        position: Vector2(position.x + width / 2, position.y + height),
+        treeSize: treeSize,
+        anchor: Anchor.bottomCenter,
+      ));
+      removeFromParent();
+    }));
   }
 
   @override
@@ -97,7 +109,6 @@ class Tree extends SpriteComponent with CollisionCallbacks {
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     if (other is Axe && isAlive) {
-      print("hit");
       damage();
     }
   }
@@ -113,7 +124,10 @@ class Apple extends SpriteComponent {
   }
 
   void kill() {
-    removeFromParent();
+    add(ColorEffect(Colors.white, EffectController(duration: killDelay),
+        opacityTo: 1, onComplete: () {
+      removeFromParent();
+    }));
   }
 }
 
