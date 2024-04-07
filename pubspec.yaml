@@ -78,6 +78,7 @@ flutter:
     - assets/images/game/environment/rain/drops/
     - assets/images/game/environment/rain/floor/
     - assets/images/game/objects/
+    - assets/images/game/objects/stumps/
     - assets/images/game/fruit/
     - assets/images/game/fruit/corn/
     - assets/images/game/fruit/tomato/

@@ -16,7 +16,7 @@ class Water extends SpriteAnimationComponent with HasGameRef<DewValley> {
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
-    animation = await SpriteAnimation.spriteList(
+    animation = SpriteAnimation.spriteList(
         await Future.wait([0, 1, 2, 3]
             .map((i) => Sprite.load('game/environment/water/$i.png'))),
         stepTime: 0.4);

@@ -76,33 +76,26 @@ class Player extends SpriteAnimationComponent
         switch (getDirectionString()) {
           case "right":
             axe = Axe(
-                position: Vector2(width / 2, height / 2),
-                size: Vector2(50, 10),
-                anchor: Anchor.centerLeft);
+                position: Vector2(width - 10, height - 10),
+                anchor: Anchor.center);
             break;
           case "left":
-            axe = Axe(
-                position: Vector2(width / 2, height / 2),
-                size: Vector2(50, 10),
-                anchor: Anchor.centerRight);
+            axe =
+                Axe(position: Vector2(10, height - 10), anchor: Anchor.center);
             break;
           case "up":
-            axe = Axe(
-                position: Vector2(width / 2, height / 2),
-                size: Vector2(10, 50),
-                anchor: Anchor.bottomCenter);
+            axe = Axe(position: Vector2(width / 2, 0), anchor: Anchor.center);
             break;
           case "down":
             axe = Axe(
-                position: Vector2(width / 2, height / 2),
-                size: Vector2(10, 50),
-                anchor: Anchor.topCenter);
+                position: Vector2(width / 2, height - 10),
+                anchor: Anchor.center);
             break;
         }
         add(axe);
 
         Future.delayed(Duration(milliseconds: toolUsageTime))
-            .then((value) => axe.removeFromParent());
+            .then((value) => remove(axe));
 
         break;
       case "hoe":
@@ -154,6 +147,7 @@ class Player extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
+    debugMode = true;
     await super.onLoad();
     const stepTime = 0.1;
     const toolStepTime = 0.1;
@@ -301,17 +295,18 @@ class Player extends SpriteAnimationComponent
 }
 
 class Axe extends ShapeComponent with CollisionCallbacks {
-  Axe({required super.position, required super.size, required super.anchor})
-      : super(priority: 20);
+  Axe({required super.position, required super.anchor}) : super(priority: 20);
 
+  double radius = 5;
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
-    add(RectangleHitbox());
-  }
-
-  @override
-  void onCollisionEnd(PositionComponent other) {
-    super.onCollisionEnd(other);
+    // CircleHitbox hitbox = CircleHitbox(
+    //   radius: size.x / 2,
+    // );
+    add(CircleHitbox(
+      radius: radius,
+      isSolid: true,
+    ));
   }
 }
