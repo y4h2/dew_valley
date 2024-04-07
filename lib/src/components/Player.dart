@@ -18,64 +18,120 @@ enum PlayerState {
   downIdle
 }
 
+extension ParseToString on PlayerState {
+  String toSnakeCase() {
+    String text = toString().split('.').last;
+    final exp = RegExp('(?<=[a-z])[A-Z]');
+    return text.replaceAllMapped(exp, (m) => '_${m.group(0)}').toLowerCase();
+  }
+}
+
 class Player extends SpriteAnimationComponent
     with HasGameRef<DewValley>, KeyboardHandler, CollisionCallbacks {
   Player({required Vector2 position, required Vector2 size})
       : super(
           size: size,
           position: position,
-          // anchor: Anchor.center,
           priority: 1,
         );
 
   PlayerState current = PlayerState.downIdle;
-  late SpriteAnimation playerLeftAnimation;
-  late SpriteAnimation playerLeftIdleAnimation;
-  late SpriteAnimation playerRightAnimation;
-  late SpriteAnimation playerRightIdleAnimation;
-  late SpriteAnimation playerUpAnimation;
-  late SpriteAnimation playerUpIdleAnimation;
-  late SpriteAnimation playerDownAnimation;
-  late SpriteAnimation playerDownIdleAnimation;
+  late Map<String, SpriteAnimation> animationMap = {};
   bool isMoving = false;
   Vector2 direction = Vector2.zero();
   double velocity = 200.0;
   late ShapeHitbox hitbox;
   bool collide = false;
   Vector2 collideDirection = Vector2.zero();
+  List<String> toolList = [
+    "axe",
+    "hoe",
+    "water",
+  ];
+
+  List<String> seedList = [
+    'tomato',
+    'corn',
+  ];
+  int selectedToolIndex = 0;
+  int selectedSeedIndex = 0;
+
+  bool isUsingTool = false;
+
+  useTool() {
+    // set up timer
+    // var currentAnimation = animation;
+    isUsingTool = true;
+    // animation = toolAnimationMap[getDirectionString() + "_" + getTool()];
+
+    Future.delayed(Duration(milliseconds: 3000)).then((value) {
+      print("reset animation");
+      isUsingTool = false;
+    });
+  }
+
+  switchTool() {
+    selectedToolIndex++;
+    selectedToolIndex %= toolList.length;
+    game.gameManager.setTool(toolList[selectedToolIndex]);
+  }
+
+  String getTool() {
+    return toolList[selectedToolIndex];
+  }
+
+  switchSeed() {
+    selectedSeedIndex++;
+    selectedSeedIndex %= seedList.length;
+    game.gameManager.setSeed(seedList[selectedSeedIndex]);
+  }
+
+  String getDirectionString() {
+    if (current == PlayerState.rightIdle || current == PlayerState.right) {
+      return "right";
+    }
+    if (current == PlayerState.leftIdle || current == PlayerState.left) {
+      return "left";
+    }
+    if (current == PlayerState.upIdle || current == PlayerState.up) {
+      return "up";
+    }
+    if (current == PlayerState.downIdle || current == PlayerState.down) {
+      return "down";
+    }
+    return "down";
+  }
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
     const stepTime = 0.1;
+    const toolStepTime = 0.1;
     const idleStepTime = 0.3;
-    playerLeftAnimation = await utils.loadAnimationInFolder(
-        [0, 1, 2, 3], 'game/character/player/left', stepTime);
-    playerLeftIdleAnimation = await utils.loadAnimationInFolder(
-        [0, 1], 'game/character/player/left_idle', idleStepTime);
-    playerRightAnimation = await utils.loadAnimationInFolder(
-        [0, 1, 2, 3], 'game/character/player/right', stepTime);
-    playerRightIdleAnimation = await utils.loadAnimationInFolder(
-        [0, 1], 'game/character/player/right_idle', idleStepTime);
-    playerUpAnimation = await utils.loadAnimationInFolder(
-        [0, 1, 2, 3], 'game/character/player/up', stepTime);
-    playerUpIdleAnimation = await utils.loadAnimationInFolder(
-        [0, 1], 'game/character/player/up_idle', idleStepTime);
-    playerDownAnimation = await utils.loadAnimationInFolder(
-        [0, 1, 2, 3], 'game/character/player/down', stepTime);
-    playerDownIdleAnimation = await utils.loadAnimationInFolder(
-        [0, 1], 'game/character/player/down_idle', idleStepTime);
 
-    animation = playerDownAnimation;
+    for (String directionS in ["left", "right", "up", "down"]) {
+      animationMap[directionS] = await utils.loadAnimationInFolder(
+          [0, 1, 2, 3], 'game/character/player/$directionS', stepTime);
+      String idleKey = '${directionS}_idle';
+      animationMap[idleKey] = await utils.loadAnimationInFolder(
+          [0, 1], 'game/character/player/$idleKey', idleStepTime);
+    }
+
+    for (String tool in toolList) {
+      for (String directionS in ["left", "right", "up", "down"]) {
+        String key = '${directionS}_$tool';
+        animationMap[key] = await utils.loadAnimationInFolder(
+          [0, 1],
+          'game/character/player/$key',
+          toolStepTime,
+        );
+      }
+    }
+
+    animation = animationMap['down_idle'];
     hitbox = RectangleHitbox();
     add(hitbox);
   }
-
-  // Future<SpriteAnimation> loadPlayerAnimation(
-  //     List<int> indices, String folder, double stepTime) async {
-  //   return utils.loadAnimationInFolder(
-  //       indices, 'game/character/player/$folder', stepTime);
-  // }
 
   @override
   bool onKeyEvent(
@@ -102,6 +158,17 @@ class Player extends SpriteAnimationComponent
       direction.y = 0;
     }
 
+    if (keysPressed.contains(LogicalKeyboardKey.space)) {
+      useTool();
+    }
+
+    if (keysPressed.contains(LogicalKeyboardKey.keyQ)) {
+      switchTool();
+    }
+
+    if (keysPressed.contains(LogicalKeyboardKey.controlLeft)) {
+      switchSeed();
+    }
     _updateStatus();
     return false;
   }
@@ -155,32 +222,12 @@ class Player extends SpriteAnimationComponent
   }
 
   void _updateAnimation() {
-    switch (current) {
-      case PlayerState.left:
-        animation = playerLeftAnimation;
-        break;
-      case PlayerState.leftIdle:
-        animation = playerLeftIdleAnimation;
-        break;
-      case PlayerState.right:
-        animation = playerRightAnimation;
-        break;
-      case PlayerState.rightIdle:
-        animation = playerRightIdleAnimation;
-        break;
-      case PlayerState.up:
-        animation = playerUpAnimation;
-        break;
-      case PlayerState.upIdle:
-        animation = playerUpIdleAnimation;
-        break;
-      case PlayerState.down:
-        animation = playerDownAnimation;
-        break;
-      case PlayerState.downIdle:
-        animation = playerDownIdleAnimation;
-        break;
+    if (isUsingTool) {
+      animation = animationMap["${getDirectionString()}_${getTool()}"];
+      return;
     }
+
+    animation = animationMap[current.toSnakeCase()];
   }
 
   @override

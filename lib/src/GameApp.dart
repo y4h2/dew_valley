@@ -1,4 +1,5 @@
 import 'package:dew_valley/src/DewValley.dart';
+import 'package:dew_valley/src/widgets/TooltipOverlay.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +30,16 @@ class _GameAppState extends State<GameApp> {
         ),
       ),
       home: Scaffold(
-        body: Container(),
+        body: GameWidget(
+          game: game,
+          overlayBuilderMap: {
+            "tooltip": (BuildContext context, DewValley game) {
+              return TooltipOverlay(
+                game: game,
+              );
+            }
+          },
+        ),
       ),
     );
   }

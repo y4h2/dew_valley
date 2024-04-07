@@ -56,5 +56,7 @@ class Level extends Component with HasGameRef<DewValley> {
     );
     await add(player);
     game.camera.follow(player);
+
+    game.overlays.add("tooltip");
   }
 }

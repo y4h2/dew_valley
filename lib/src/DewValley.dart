@@ -1,5 +1,6 @@
 import 'package:dew_valley/src/components/Player.dart';
 import 'package:dew_valley/src/components/Rain.dart';
+import 'package:dew_valley/src/components/managers/GameManager.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -13,6 +14,7 @@ class DewValley extends FlameGame
   }
 
   late Level level;
+  late GameManager gameManager;
 
   @override
   Future<void> onLoad() async {
@@ -20,9 +22,11 @@ class DewValley extends FlameGame
     // debugMode = true;
 
     level = Level();
+    gameManager = GameManager();
 
     world = World(children: [
       level,
+      gameManager,
     ]);
 
     await add(world);

@@ -52,12 +52,24 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/game/character/player/left/
+    - assets/images/game/character/player/left_axe/
+    - assets/images/game/character/player/left_hoe/
+    - assets/images/game/character/player/left_water/
     - assets/images/game/character/player/left_idle/
     - assets/images/game/character/player/right/
+    - assets/images/game/character/player/right_axe/
+    - assets/images/game/character/player/right_hoe/
+    - assets/images/game/character/player/right_water/
     - assets/images/game/character/player/right_idle/
     - assets/images/game/character/player/up/
+    - assets/images/game/character/player/up_axe/
+    - assets/images/game/character/player/up_hoe/
+    - assets/images/game/character/player/up_water/
     - assets/images/game/character/player/up_idle/
     - assets/images/game/character/player/down/
+    - assets/images/game/character/player/down_axe/
+    - assets/images/game/character/player/down_hoe/
+    - assets/images/game/character/player/down_water/
     - assets/images/game/character/player/down_idle/
     - assets/images/game/environment/
     - assets/images/game/environment/water/
@@ -66,5 +78,6 @@ flutter:
     - assets/images/game/environment/rain/drops/
     - assets/images/game/environment/rain/floor/
     - assets/images/game/objects/
+    - assets/images/game/overlay/
     - assets/tiles/map.tmx
     - assets/tiles/Tilesets/
