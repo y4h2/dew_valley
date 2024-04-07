@@ -1,4 +1,6 @@
 import 'package:dew_valley/src/DewValley.dart';
+import 'package:dew_valley/src/components/Obstacle.dart';
+import 'package:dew_valley/src/settings.dart';
 import 'package:flame/components.dart';
 import 'dart:async';
 import 'package:flame/collisions.dart';
@@ -32,7 +34,7 @@ class Player extends SpriteAnimationComponent
       : super(
           size: size,
           position: position,
-          priority: 1,
+          priority: layerPriority['main'],
         );
 
   PlayerState current = PlayerState.downIdle;
@@ -56,6 +58,8 @@ class Player extends SpriteAnimationComponent
   int selectedToolIndex = 0;
   int selectedSeedIndex = 0;
 
+  int toolUsageTime = 1000; // milliseconds
+
   bool isUsingTool = false;
 
   useTool() {
@@ -64,10 +68,56 @@ class Player extends SpriteAnimationComponent
     isUsingTool = true;
     // animation = toolAnimationMap[getDirectionString() + "_" + getTool()];
 
-    Future.delayed(Duration(milliseconds: 3000)).then((value) {
-      print("reset animation");
+    String selectedTool = getTool();
+    switch (selectedTool) {
+      case "axe":
+        // create axe hitbox
+        late Axe axe;
+        switch (getDirectionString()) {
+          case "right":
+            axe = Axe(
+                position: Vector2(width / 2, height / 2),
+                size: Vector2(50, 10),
+                anchor: Anchor.centerLeft);
+            break;
+          case "left":
+            axe = Axe(
+                position: Vector2(width / 2, height / 2),
+                size: Vector2(50, 10),
+                anchor: Anchor.centerRight);
+            break;
+          case "up":
+            axe = Axe(
+                position: Vector2(width / 2, height / 2),
+                size: Vector2(10, 50),
+                anchor: Anchor.bottomCenter);
+            break;
+          case "down":
+            axe = Axe(
+                position: Vector2(width / 2, height / 2),
+                size: Vector2(10, 50),
+                anchor: Anchor.topCenter);
+            break;
+        }
+        add(axe);
+
+        Future.delayed(Duration(milliseconds: toolUsageTime))
+            .then((value) => axe.removeFromParent());
+
+        break;
+      case "hoe":
+        break;
+      case "water":
+        break;
+    }
+
+    Future.delayed(Duration(milliseconds: toolUsageTime)).then((value) {
       isUsingTool = false;
     });
+  }
+
+  Vector2 getTargetPosition() {
+    return center + playerToolOffset[getDirectionString()]!;
   }
 
   switchTool() {
@@ -232,11 +282,13 @@ class Player extends SpriteAnimationComponent
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollision(intersectionPoints, other);
-    if (!collide) {
-      collide = true;
-      collideDirection.x = direction.x;
-      collideDirection.y = direction.y;
+    if (other is Obstacle) {
+      super.onCollision(intersectionPoints, other);
+      if (!collide) {
+        collide = true;
+        collideDirection.x = direction.x;
+        collideDirection.y = direction.y;
+      }
     }
   }
 
@@ -245,5 +297,21 @@ class Player extends SpriteAnimationComponent
     super.onCollisionEnd(other);
     collideDirection = Vector2.zero();
     collide = false;
+  }
+}
+
+class Axe extends ShapeComponent with CollisionCallbacks {
+  Axe({required super.position, required super.size, required super.anchor})
+      : super(priority: 20);
+
+  @override
+  FutureOr<void> onLoad() async {
+    super.onLoad();
+    add(RectangleHitbox());
+  }
+
+  @override
+  void onCollisionEnd(PositionComponent other) {
+    super.onCollisionEnd(other);
   }
 }

@@ -1,3 +1,5 @@
+import 'package:flame/components.dart';
+
 var layerPriority = {
   'water': 0,
   'ground': 1,
@@ -15,4 +17,11 @@ var layerPriority = {
 var applePositions = {
   'small': [(18, 17), (30, 37), (12, 50), (30, 45), (20, 30), (30, 10)],
   'medium': [(30, 24), (60, 65), (50, 50), (16, 40), (45, 50), (42, 70)]
+};
+
+var playerToolOffset = {
+  'left': Vector2(-50, 40),
+  'right': Vector2(50, 40),
+  'up': Vector2(0, -10),
+  'down': Vector2(0, 50)
 };

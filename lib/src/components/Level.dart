@@ -52,22 +52,22 @@ class Level extends Component with HasGameRef<DewValley> {
 
     await add(Rain());
 
+    final playerLayer = tileMap.getLayer<ObjectGroup>('Player');
+    final playerObject = playerLayer!.objects
+        .where(
+          (element) => element.name == 'Start',
+        )
+        .toList()
+        .first;
     Player player = Player(
-      size: Vector2.all(128),
-      position: Vector2(200, 200),
+      position: Vector2(playerObject.x, playerObject.y),
+      size: Vector2(100, 100),
     );
     await add(player);
     game.camera.follow(player);
 
-    // final decorationLayer = tileMap.getLayer<ObjectGroup>('Decoration');
-    // for (final object in decorationLayer!.objects) {
-    //   add(SunFlower(
-    //     position: Vector2(object.x, object.y - object.height),
-    //     size: Vector2(object.width, object.height),
-    //   ));
-    // }
-
-    tileMap.renderableLayers;
+    // Bed
+    // Trader
 
     final obstacleLayer = tileMap.getLayer<TileLayer>('Collision');
     final obstacleTileData = obstacleLayer!.tileData;

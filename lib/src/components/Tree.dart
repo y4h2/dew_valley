@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dew_valley/src/components/Obstacle.dart';
+import 'package:dew_valley/src/components/Player.dart';
 import 'package:dew_valley/src/settings.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -32,8 +34,6 @@ class Tree extends SpriteComponent with CollisionCallbacks {
 
   TreeSize treeSize;
   late ShapeHitbox hitbox;
-  int health = 5;
-  bool alive = true;
   List<Apple> apples = [];
 
   @override
@@ -49,24 +49,26 @@ class Tree extends SpriteComponent with CollisionCallbacks {
     } else {
       throw 'Unknown tree size: $treeSize';
     }
+
     hitbox = RectangleHitbox();
     add(hitbox);
+    add(Obstacle(position: Vector2.zero(), size: size));
 
     for (int i = 0; i < applePositions[treeSize.name]!.length; i++) {
       final applePosition = applePositions[treeSize.name]![i];
-      apples.add(Apple(
+      final apple = Apple(
           position: Vector2(
-              applePosition.$1.toDouble(), applePosition.$2.toDouble())));
-    }
-
-    for (final apple in apples) {
+              applePosition.$1.toDouble(), applePosition.$2.toDouble()));
       add(apple);
+      apples.add(apple);
     }
   }
 
-  void damage() {
-    health -= 1;
+  bool _isAlive() {
+    return apples.isNotEmpty;
+  }
 
+  void damage() {
     var appleIndex = Random().nextInt(apples.length);
     apples.elementAt(appleIndex).kill();
     apples.removeAt(appleIndex);
@@ -75,11 +77,27 @@ class Tree extends SpriteComponent with CollisionCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-    if (alive) {
-      if (health <= 0) {
-        alive = false;
-        removeFromParent();
-      }
+    if (!_isAlive()) {
+      removeFromParent();
+    }
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+    // if (other is Axe) {
+    //   print("hit");
+    // }
+  }
+
+  @override
+  void onCollisionStart(
+      Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollisionStart(intersectionPoints, other);
+    if (other is Axe) {
+      // print("hit");
+
+      damage();
     }
   }
 }
