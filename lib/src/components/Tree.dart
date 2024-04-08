@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dew_valley/src/DewValley.dart';
 import 'package:dew_valley/src/components/Obstacle.dart';
 import 'package:dew_valley/src/components/Player.dart';
+import 'package:dew_valley/src/components/managers/PlayerInventoryManager.dart';
 import 'package:dew_valley/src/settings.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -27,7 +29,8 @@ enum TreeSize {
 
 double killDelay = 0.5;
 
-class Tree extends SpriteComponent with CollisionCallbacks {
+class Tree extends SpriteComponent
+    with CollisionCallbacks, HasGameRef<DewValley> {
   Tree({
     required Vector2 super.position,
     required Vector2 super.size,
@@ -44,7 +47,7 @@ class Tree extends SpriteComponent with CollisionCallbacks {
   FutureOr<void> onLoad() async {
     super.onLoad();
 
-    debugMode = true;
+    debugMode = debugModeMap['tree']!;
 
     if (treeSize == TreeSize.small) {
       sprite = await Sprite.load(
@@ -76,6 +79,24 @@ class Tree extends SpriteComponent with CollisionCallbacks {
       var appleIndex = Random().nextInt(apples.length);
       apples.elementAt(appleIndex).kill();
       apples.removeAt(appleIndex);
+      game.playerInventoryManager.addItem(Item.apple, 1);
+    }
+  }
+
+  void reset() {
+    health = 7;
+    isAlive = true;
+    for (final apple in apples) {
+      apple.kill();
+    }
+    apples.clear();
+    for (int i = 0; i < applePositions[treeSize.name]!.length; i++) {
+      final applePosition = applePositions[treeSize.name]![i];
+      final apple = Apple(
+          position: Vector2(
+              applePosition.$1.toDouble(), applePosition.$2.toDouble()));
+      add(apple);
+      apples.add(apple);
     }
   }
 
@@ -101,6 +122,7 @@ class Tree extends SpriteComponent with CollisionCallbacks {
         anchor: Anchor.bottomCenter,
       ));
       removeFromParent();
+      game.playerInventoryManager.addItem(Item.wood, 1);
     }));
   }
 
@@ -138,7 +160,7 @@ class Strump extends SpriteComponent {
   TreeSize treeSize;
   @override
   FutureOr<void> onLoad() async {
-    debugMode = true;
+    debugMode = debugModeMap['strump']!;
     super.onLoad();
     if (treeSize == TreeSize.small) {
       sprite = await Sprite.load('game/objects/stumps/small.png');

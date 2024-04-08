@@ -1,4 +1,5 @@
 import 'package:dew_valley/src/DewValley.dart';
+import 'package:dew_valley/src/components/BedInteraction.dart';
 import 'package:dew_valley/src/components/Obstacle.dart';
 import 'package:dew_valley/src/settings.dart';
 import 'package:flame/components.dart';
@@ -99,6 +100,30 @@ class Player extends SpriteAnimationComponent
 
         break;
       case "hoe":
+        // create hoe hitbox
+        late Hoe hoe;
+        switch (getDirectionString()) {
+          case "right":
+            hoe = Hoe(
+                position: Vector2(width - 10, height - 20),
+                anchor: Anchor.center);
+            break;
+          case "left":
+            hoe =
+                Hoe(position: Vector2(10, height - 20), anchor: Anchor.center);
+            break;
+          case "up":
+            hoe = Hoe(position: Vector2(width / 2, 0), anchor: Anchor.center);
+            break;
+          case "down":
+            hoe = Hoe(
+                position: Vector2(width / 2, height - 10),
+                anchor: Anchor.center);
+            break;
+        }
+        add(hoe);
+        Future.delayed(Duration(milliseconds: toolUsageTime))
+            .then((value) => remove(hoe));
         break;
       case "water":
         break;
@@ -147,7 +172,7 @@ class Player extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
-    debugMode = true;
+    debugMode = debugModeMap['player']!;
     await super.onLoad();
     const stepTime = 0.1;
     const toolStepTime = 0.1;
@@ -212,6 +237,14 @@ class Player extends SpriteAnimationComponent
 
     if (keysPressed.contains(LogicalKeyboardKey.controlLeft)) {
       switchSeed();
+    }
+
+    if (keysPressed.contains(LogicalKeyboardKey.enter)) {
+      if (collidingWith(game.level.bedInteraction)) {
+        current = PlayerState.leftIdle;
+        game.level.nextDay();
+      }
+      if (collidingWith(game.level.traderInteraction)) {}
     }
     _updateStatus();
     return false;
@@ -295,15 +328,43 @@ class Player extends SpriteAnimationComponent
 }
 
 class Axe extends ShapeComponent with CollisionCallbacks {
-  Axe({required super.position, required super.anchor}) : super(priority: 20);
+  Axe({required super.position, required super.anchor})
+      : super(priority: layerPriority['main']);
 
   double radius = 5;
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
-    // CircleHitbox hitbox = CircleHitbox(
-    //   radius: size.x / 2,
-    // );
+    add(CircleHitbox(
+      radius: radius,
+      isSolid: true,
+    ));
+  }
+}
+
+class Hoe extends ShapeComponent with CollisionCallbacks {
+  Hoe({required super.position, required super.anchor})
+      : super(priority: layerPriority['main']);
+
+  double radius = 5;
+  @override
+  FutureOr<void> onLoad() async {
+    super.onLoad();
+    add(CircleHitbox(
+      radius: radius,
+      isSolid: true,
+    ));
+  }
+}
+
+class WaterCan extends ShapeComponent with CollisionCallbacks {
+  WaterCan({required super.position, required super.anchor})
+      : super(priority: layerPriority['main']);
+
+  double radius = 5;
+  @override
+  FutureOr<void> onLoad() async {
+    super.onLoad();
     add(CircleHitbox(
       radius: radius,
       isSolid: true,

@@ -1,4 +1,5 @@
 import 'package:dew_valley/src/DewValley.dart';
+import 'package:dew_valley/src/widgets/SkyOverlay.dart';
 import 'package:dew_valley/src/widgets/TooltipOverlay.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,11 @@ class _GameAppState extends State<GameApp> {
           overlayBuilderMap: {
             "tooltip": (BuildContext context, DewValley game) {
               return TooltipOverlay(
+                game: game,
+              );
+            },
+            "sky": (BuildContext context, DewValley game) {
+              return SkyOverlay(
                 game: game,
               );
             }

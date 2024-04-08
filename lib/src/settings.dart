@@ -25,3 +25,9 @@ var playerToolOffset = {
   'up': Vector2(0, -10),
   'down': Vector2(0, 50)
 };
+
+var debugModeMap = {
+  'player': false,
+  'tree': false,
+  'strump': false,
+};
