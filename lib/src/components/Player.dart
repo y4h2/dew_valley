@@ -126,6 +126,33 @@ class Player extends SpriteAnimationComponent
             .then((value) => remove(hoe));
         break;
       case "water":
+        late WaterCan waterCan;
+
+        switch (getDirectionString()) {
+          case "right":
+            waterCan = WaterCan(
+                position: Vector2(width - 10, height - 10),
+                anchor: Anchor.center);
+            break;
+          case "left":
+            waterCan = WaterCan(
+                position: Vector2(10, height - 10), anchor: Anchor.center);
+            break;
+          case "up":
+            waterCan = WaterCan(
+                position: Vector2(width / 2, 0), anchor: Anchor.center);
+            break;
+          case "down":
+            waterCan = WaterCan(
+                position: Vector2(width / 2, height - 10),
+                anchor: Anchor.center);
+            break;
+        }
+        add(waterCan);
+
+        Future.delayed(Duration(milliseconds: toolUsageTime))
+            .then((value) => remove(waterCan));
+
         break;
     }
 

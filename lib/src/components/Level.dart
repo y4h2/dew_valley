@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dew_valley/src/components/BedInteraction.dart';
 import 'package:dew_valley/src/components/Obstacle.dart';
@@ -25,10 +26,14 @@ class Level extends Component with HasGameRef<DewValley> {
   late TraderInteraction traderInteraction;
   late Player player;
   late SoilLayer soilLayer;
+  bool isRaining = false;
+
+  late double mapWidth;
+  late double mapHeight;
+  late Rain? rain;
 
   @override
   FutureOr<void> onLoad() async {
-    // debugMode = true;
     super.onLoad();
 
     final level = await TiledComponent.load(
@@ -48,6 +53,8 @@ class Level extends Component with HasGameRef<DewValley> {
         }
       }
     }
+    mapWidth = elementWidth * tileData.length;
+    mapHeight = elementHeight * tileData[0].length;
 
     await add(level);
 
@@ -59,8 +66,6 @@ class Level extends Component with HasGameRef<DewValley> {
         treeSize: TreeSize.toEnum(object.name),
       ));
     }
-
-    // await add(Rain());
 
     final playerLayer = tileMap.getLayer<ObjectGroup>('Player');
     final playerObject = playerLayer!.objects
@@ -117,30 +122,42 @@ class Level extends Component with HasGameRef<DewValley> {
       }
     }
 
-    soilLayer = SoilLayer();
-    await add(soilLayer);
-
     final soilLayerMap = tileMap.getLayer<TileLayer>('Farmable');
     final soilTileData = soilLayerMap!.tileData;
-    for (int i = 0; i < soilTileData!.length; i++) {
-      for (int j = 0; j < soilTileData[i].length; j++) {
-        if (soilTileData[i][j].tile != 0) {
-          await soilLayer.add(FarmableTile(
-            position: Vector2(j * elementWidth, i * elementHeight),
-            size: Vector2(elementWidth, elementHeight),
-          ));
-        }
-      }
-    }
+
+    soilLayer = SoilLayer(
+        soilTileData: soilTileData!,
+        cellWidth: elementWidth,
+        cellHeight: elementHeight);
+    await add(soilLayer);
+
+    whetherRaining();
 
     game.overlays.add("tooltip");
     game.overlays.add("sky");
+  }
+
+  void whetherRaining() {
+    isRaining = Random().nextInt(10) < 7;
+    if (!isRaining) {
+      return;
+    }
+
+    soilLayer.addAllWater();
+    rain = Rain();
+    add(rain!);
   }
 
   void reset() {
     for (final tree in children.whereType<Tree>()) {
       tree.reset();
     }
+    soilLayer.removeAllWater();
+    if (isRaining) {
+      remove(rain!);
+    }
+
+    whetherRaining();
   }
 
   void nextDay() async {

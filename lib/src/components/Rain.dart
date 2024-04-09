@@ -53,9 +53,13 @@ class DropOnFloor extends SpriteComponent {
 class Rain extends Component with HasGameRef<DewValley> {
   Rain() : super();
 
+  late double width;
+  late double height;
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
+    width = game.level.mapWidth;
+    height = game.level.mapHeight;
     spawn();
   }
 
@@ -65,14 +69,15 @@ class Rain extends Component with HasGameRef<DewValley> {
         return Drop();
       },
       period: 0.1,
-      area: Rectangle.fromLTWH(0, 0, game.size.x, game.size.y),
+      // area: Rectangle.fromLTWH(0, 0, game.size.x, game.size.y),
+      area: Rectangle.fromLTWH(0, 0, width, height),
     ));
     add(SpawnComponent(
       factory: (int i) {
         return DropOnFloor();
       },
       period: 0.1,
-      area: Rectangle.fromLTWH(0, 0, game.size.x, game.size.y),
+      area: Rectangle.fromLTWH(0, 0, width, height),
     ));
   }
 }
