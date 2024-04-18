@@ -32,6 +32,8 @@ class Level extends Component with HasGameRef<DewValley> {
   late double mapHeight;
   late Rain? rain;
 
+  // create object groups
+
   @override
   FutureOr<void> onLoad() async {
     super.onLoad();
@@ -153,6 +155,7 @@ class Level extends Component with HasGameRef<DewValley> {
       tree.reset();
     }
     soilLayer.removeAllWater();
+    soilLayer.updateAllPlant();
     if (isRaining) {
       remove(rain!);
     }

@@ -9,6 +9,7 @@ import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
 import 'package:dew_valley/src/utils/utils.dart' as utils;
+import 'package:dew_valley/src/models/Item.dart';
 
 enum PlayerState {
   left,
@@ -52,9 +53,9 @@ class Player extends SpriteAnimationComponent
     "water",
   ];
 
-  List<String> seedList = [
-    'tomato',
-    'corn',
+  List<Item> seedList = [
+    Item.tomato,
+    Item.corn,
   ];
   int selectedToolIndex = 0;
   int selectedSeedIndex = 0;
@@ -181,6 +182,10 @@ class Player extends SpriteAnimationComponent
     game.gameManager.setSeed(seedList[selectedSeedIndex]);
   }
 
+  Item getSeed() {
+    return seedList[selectedSeedIndex];
+  }
+
   String getDirectionString() {
     if (current == PlayerState.rightIdle || current == PlayerState.right) {
       return "right";
@@ -262,7 +267,7 @@ class Player extends SpriteAnimationComponent
       switchTool();
     }
 
-    if (keysPressed.contains(LogicalKeyboardKey.controlLeft)) {
+    if (keysPressed.contains(LogicalKeyboardKey.keyE)) {
       switchSeed();
     }
 
@@ -272,6 +277,11 @@ class Player extends SpriteAnimationComponent
         game.level.nextDay();
       }
       if (collidingWith(game.level.traderInteraction)) {}
+    }
+
+    if (keysPressed.contains(LogicalKeyboardKey.controlLeft)) {
+      // use seed
+      useSeed();
     }
     _updateStatus();
     return false;
@@ -352,6 +362,44 @@ class Player extends SpriteAnimationComponent
     collideDirection = Vector2.zero();
     collide = false;
   }
+
+  void useSeed() {
+    // check inventory
+    var currentSeed = getSeed();
+    if (!game.playerInventoryManager.useItem(currentSeed)) {
+      return;
+    }
+    var seed;
+    switch (getDirectionString()) {
+      case "right":
+        seed = Seed(
+            position: Vector2(width - 10, height - 10),
+            anchor: Anchor.center,
+            seed: currentSeed);
+        break;
+      case "left":
+        seed = Seed(
+            position: Vector2(10, height - 10),
+            anchor: Anchor.center,
+            seed: currentSeed);
+        break;
+      case "up":
+        seed = Seed(
+            position: Vector2(width / 2, 0),
+            anchor: Anchor.center,
+            seed: currentSeed);
+        break;
+      case "down":
+        seed = Seed(
+            position: Vector2(width / 2, height - 10),
+            anchor: Anchor.center,
+            seed: currentSeed);
+        break;
+    }
+    add(seed);
+    Future.delayed(Duration(milliseconds: toolUsageTime))
+        .then((value) => remove(seed));
+  }
 }
 
 class Axe extends ShapeComponent with CollisionCallbacks {
@@ -388,6 +436,22 @@ class WaterCan extends ShapeComponent with CollisionCallbacks {
   WaterCan({required super.position, required super.anchor})
       : super(priority: layerPriority['main']);
 
+  double radius = 5;
+  @override
+  FutureOr<void> onLoad() async {
+    super.onLoad();
+    add(CircleHitbox(
+      radius: radius,
+      isSolid: true,
+    ));
+  }
+}
+
+class Seed extends ShapeComponent with CollisionCallbacks {
+  Seed({required super.position, required super.anchor, required this.seed})
+      : super(priority: layerPriority['main']);
+
+  Item seed;
   double radius = 5;
   @override
   FutureOr<void> onLoad() async {

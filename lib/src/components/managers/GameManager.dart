@@ -4,6 +4,7 @@ import 'package:dew_valley/src/DewValley.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:dew_valley/src/models/Item.dart';
 
 class GameManager extends Component with HasGameRef<DewValley> {
   GameManager();
@@ -16,8 +17,8 @@ class GameManager extends Component with HasGameRef<DewValley> {
     tool.value = value;
   }
 
-  void setSeed(String value) {
-    seed.value = value;
+  void setSeed(Item seed) {
+    this.seed.value = seed.name;
   }
 
   void setSkyColor(Color value) {

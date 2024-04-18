@@ -27,7 +27,7 @@ var playerToolOffset = {
 };
 
 var debugModeMap = {
-  'player': false,
+  'player': true,
   'tree': false,
   'strump': false,
 };

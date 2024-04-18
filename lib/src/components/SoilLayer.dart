@@ -1,7 +1,10 @@
 import 'dart:math';
 
 import 'package:dew_valley/src/DewValley.dart';
+import 'package:dew_valley/src/components/Plant.dart';
 import 'package:dew_valley/src/components/Player.dart';
+import 'package:dew_valley/src/models/Item.dart';
+import 'package:dew_valley/src/settings.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
@@ -125,6 +128,12 @@ class SoilLayer extends Component with HasGameRef<DewValley> {
       value.removeWater();
     });
   }
+
+  void updateAllPlant() {
+    _soil.forEach((key, value) {
+      value.updatePlant();
+    });
+  }
 }
 
 enum SoilTileState {
@@ -174,11 +183,14 @@ class FarmableTile extends PositionComponent
 class SoilTile extends SpriteComponent
     with HasGameRef<DewValley>, CollisionCallbacks {
   SoilTile(
-      {required super.position, required super.size, required this.soilLayer});
+      {required super.position, required super.size, required this.soilLayer})
+      : super(priority: layerPriority['soil']);
   SoilLayer soilLayer;
   Map<SoilTileState, bool> _states = {};
   bool hasWater = false;
+  // bool hasPlant = false;
   WaterSoil? waterSoil = null;
+  Plant? plant = null;
   @override
   Future<void> onLoad() async {
     super.onLoad();
@@ -202,6 +214,10 @@ class SoilTile extends SpriteComponent
     if (other is WaterCan && !hasWater) {
       addWater();
     }
+
+    if (other is Seed && !hasPlant()) {
+      addPlant(other.seed);
+    }
   }
 
   addWater() {
@@ -217,11 +233,34 @@ class SoilTile extends SpriteComponent
       waterSoil = null;
     }
   }
+
+  bool hasPlant() {
+    return plant != null;
+  }
+
+  void addPlant(Item seed) {
+    plant = Plant(size: size, plantType: seed);
+    add(plant!);
+  }
+
+  void removePlant() {
+    if (hasPlant()) {
+      remove(plant!);
+      plant = null;
+    }
+  }
+
+  void updatePlant() {
+    if (hasPlant()) {
+      plant!.grow();
+    }
+  }
 }
 
 class WaterSoil extends SpriteComponent
     with HasGameRef<DewValley>, CollisionCallbacks {
-  WaterSoil({required super.size});
+  WaterSoil({required super.size})
+      : super(priority: layerPriority["soil water"]);
 
   @override
   Future<void> onLoad() async {

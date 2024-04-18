@@ -5,6 +5,7 @@ import 'package:dew_valley/src/DewValley.dart';
 import 'package:dew_valley/src/components/Obstacle.dart';
 import 'package:dew_valley/src/components/Player.dart';
 import 'package:dew_valley/src/components/managers/PlayerInventoryManager.dart';
+import 'package:dew_valley/src/models/Item.dart';
 import 'package:dew_valley/src/settings.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';

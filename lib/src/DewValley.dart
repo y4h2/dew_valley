@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dew_valley/src/components/Player.dart';
 import 'package:dew_valley/src/components/Rain.dart';
 import 'package:dew_valley/src/components/managers/GameManager.dart';
@@ -17,6 +19,11 @@ class DewValley extends FlameGame
   late Level level;
   late GameManager gameManager;
   late PlayerInventoryManager playerInventoryManager;
+
+  @override
+  Color backgroundColor() {
+    return const Color(0xFF211F30);
+  }
 
   @override
   Future<void> onLoad() async {
